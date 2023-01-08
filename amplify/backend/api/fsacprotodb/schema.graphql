@@ -1,0 +1,58 @@
+enum CertAgency {
+  PADI
+  NAUI
+  SSI
+  SDI
+  TDI
+  IANTD
+  BSAC
+  CMAS
+  FQAS
+}
+
+enum MembershipType {
+  REGULAR
+  ORDINARY
+  ASSOCIATE
+}
+
+type EquipmentType @model @auth(rules: [{allow: public}, {allow: groups, groups: ["EquipmentMgtGroup"], operations: [read, create, update, delete]}]) {
+  id: ID!
+  equipmentType: String!
+}
+
+type Equipment @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  EquipmentType: EquipmentType @hasOne
+  brand: String
+  model: String
+  serialNumber: String
+  assetNumber: String
+  maintenanceStatus: String
+  lastMaintenanceDate: AWSDate
+  memberID: ID @index(name: "byMember")
+  tankVisual: AWSDate
+  tankHydro: AWSDate
+}
+
+type Certifications @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  qualtype: String!
+  memberID: ID! @index(name: "byMember")
+  agency: CertAgency!
+  certNum: String
+  certDate: AWSDate
+}
+
+type Member @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  diveCerts: [Certifications] @hasMany(indexName: "byMember", fields: ["id"])
+  membershipStatus: MembershipType!
+  Equipment: [Equipment] @hasMany(indexName: "byMember", fields: ["id"])
+  membershipDate: AWSDate!
+  membershipValid: Boolean!
+  isExec: Boolean!
+}
+ 
