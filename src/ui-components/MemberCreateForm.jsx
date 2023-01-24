@@ -6,9 +6,6 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { fetchByPath, validateField } from "./utils";
-import { Member } from "../models";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import {
   Button,
   Flex,
@@ -17,6 +14,9 @@ import {
   SwitchField,
   TextField,
 } from "@aws-amplify/ui-react";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { Member } from "../models";
+import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
 export default function MemberCreateForm(props) {
   const {
@@ -24,19 +24,20 @@ export default function MemberCreateForm(props) {
     onSuccess,
     onError,
     onSubmit,
-    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    firstName: undefined,
-    lastName: undefined,
+    firstName: "",
+    lastName: "",
     membershipStatus: undefined,
-    membershipDate: undefined,
+    membershipDate: "",
     membershipValid: false,
     isExec: false,
+    memberEmail: "",
+    memberPhoneNumber: "",
   };
   const [firstName, setFirstName] = React.useState(initialValues.firstName);
   const [lastName, setLastName] = React.useState(initialValues.lastName);
@@ -50,6 +51,12 @@ export default function MemberCreateForm(props) {
     initialValues.membershipValid
   );
   const [isExec, setIsExec] = React.useState(initialValues.isExec);
+  const [memberEmail, setMemberEmail] = React.useState(
+    initialValues.memberEmail
+  );
+  const [memberPhoneNumber, setMemberPhoneNumber] = React.useState(
+    initialValues.memberPhoneNumber
+  );
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     setFirstName(initialValues.firstName);
@@ -58,6 +65,8 @@ export default function MemberCreateForm(props) {
     setMembershipDate(initialValues.membershipDate);
     setMembershipValid(initialValues.membershipValid);
     setIsExec(initialValues.isExec);
+    setMemberEmail(initialValues.memberEmail);
+    setMemberPhoneNumber(initialValues.memberPhoneNumber);
     setErrors({});
   };
   const validations = {
@@ -67,8 +76,17 @@ export default function MemberCreateForm(props) {
     membershipDate: [{ type: "Required" }],
     membershipValid: [{ type: "Required" }],
     isExec: [{ type: "Required" }],
+    memberEmail: [],
+    memberPhoneNumber: [{ type: "Phone" }],
   };
-  const runValidationTasks = async (fieldName, value) => {
+  const runValidationTasks = async (
+    fieldName,
+    currentValue,
+    getDisplayValue
+  ) => {
+    const value = getDisplayValue
+      ? getDisplayValue(currentValue)
+      : currentValue;
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -92,6 +110,8 @@ export default function MemberCreateForm(props) {
           membershipDate,
           membershipValid,
           isExec,
+          memberEmail,
+          memberPhoneNumber,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -116,6 +136,11 @@ export default function MemberCreateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
+          Object.entries(modelFields).forEach(([key, value]) => {
+            if (typeof value === "string" && value.trim() === "") {
+              modelFields[key] = undefined;
+            }
+          });
           await DataStore.save(new Member(modelFields));
           if (onSuccess) {
             onSuccess(modelFields);
@@ -129,13 +154,14 @@ export default function MemberCreateForm(props) {
           }
         }
       }}
-      {...rest}
       {...getOverrideProps(overrides, "MemberCreateForm")}
+      {...rest}
     >
       <TextField
         label="First name"
         isRequired={true}
         isReadOnly={false}
+        value={firstName}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -146,6 +172,8 @@ export default function MemberCreateForm(props) {
               membershipDate,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.firstName ?? value;
@@ -164,6 +192,7 @@ export default function MemberCreateForm(props) {
         label="Last name"
         isRequired={true}
         isReadOnly={false}
+        value={lastName}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -174,6 +203,8 @@ export default function MemberCreateForm(props) {
               membershipDate,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.lastName ?? value;
@@ -203,6 +234,8 @@ export default function MemberCreateForm(props) {
               membershipDate,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.membershipStatus ?? value;
@@ -238,6 +271,7 @@ export default function MemberCreateForm(props) {
         isRequired={true}
         isReadOnly={false}
         type="date"
+        value={membershipDate}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -248,6 +282,8 @@ export default function MemberCreateForm(props) {
               membershipDate: value,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.membershipDate ?? value;
@@ -277,6 +313,8 @@ export default function MemberCreateForm(props) {
               membershipDate,
               membershipValid: value,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.membershipValid ?? value;
@@ -306,6 +344,8 @@ export default function MemberCreateForm(props) {
               membershipDate,
               membershipValid,
               isExec: value,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.isExec ?? value;
@@ -320,6 +360,71 @@ export default function MemberCreateForm(props) {
         hasError={errors.isExec?.hasError}
         {...getOverrideProps(overrides, "isExec")}
       ></SwitchField>
+      <TextField
+        label="Member email"
+        isRequired={false}
+        isReadOnly={false}
+        value={memberEmail}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              firstName,
+              lastName,
+              membershipStatus,
+              membershipDate,
+              membershipValid,
+              isExec,
+              memberEmail: value,
+              memberPhoneNumber,
+            };
+            const result = onChange(modelFields);
+            value = result?.memberEmail ?? value;
+          }
+          if (errors.memberEmail?.hasError) {
+            runValidationTasks("memberEmail", value);
+          }
+          setMemberEmail(value);
+        }}
+        onBlur={() => runValidationTasks("memberEmail", memberEmail)}
+        errorMessage={errors.memberEmail?.errorMessage}
+        hasError={errors.memberEmail?.hasError}
+        {...getOverrideProps(overrides, "memberEmail")}
+      ></TextField>
+      <TextField
+        label="Member phone number"
+        isRequired={false}
+        isReadOnly={false}
+        type="tel"
+        value={memberPhoneNumber}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              firstName,
+              lastName,
+              membershipStatus,
+              membershipDate,
+              membershipValid,
+              isExec,
+              memberEmail,
+              memberPhoneNumber: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.memberPhoneNumber ?? value;
+          }
+          if (errors.memberPhoneNumber?.hasError) {
+            runValidationTasks("memberPhoneNumber", value);
+          }
+          setMemberPhoneNumber(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("memberPhoneNumber", memberPhoneNumber)
+        }
+        errorMessage={errors.memberPhoneNumber?.errorMessage}
+        hasError={errors.memberPhoneNumber?.hasError}
+        {...getOverrideProps(overrides, "memberPhoneNumber")}
+      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
@@ -327,21 +432,16 @@ export default function MemberCreateForm(props) {
         <Button
           children="Clear"
           type="reset"
-          onClick={resetStateValues}
+          onClick={(event) => {
+            event.preventDefault();
+            resetStateValues();
+          }}
           {...getOverrideProps(overrides, "ClearButton")}
         ></Button>
         <Flex
           gap="15px"
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
-          <Button
-            children="Cancel"
-            type="button"
-            onClick={() => {
-              onCancel && onCancel();
-            }}
-            {...getOverrideProps(overrides, "CancelButton")}
-          ></Button>
           <Button
             children="Submit"
             type="submit"

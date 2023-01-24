@@ -6,8 +6,13 @@
 
 import * as React from "react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
-import { ViewProps } from "@aws-amplify/ui-react";
+import { ImageProps, ViewProps } from "@aws-amplify/ui-react";
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type ScubaBackImageOverridesProps = {
+    ScubaBackImage?: PrimitiveOverrideProps<ViewProps>;
+    ScubaBackImage36683012?: PrimitiveOverrideProps<ImageProps>;
+} & EscapeHatchProps;
 export declare type ScubaBackImageProps = React.PropsWithChildren<Partial<ViewProps> & {
-    overrides?: EscapeHatchProps | undefined | null;
+    overrides?: ScubaBackImageOverridesProps | undefined | null;
 }>;
 export default function ScubaBackImage(props: ScubaBackImageProps): React.ReactElement;

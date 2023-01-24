@@ -20,8 +20,8 @@ export default function Useralt(props) {
       justifyContent="unset"
       position="relative"
       padding="0px 0px 0px 0px"
-      {...rest}
       {...getOverrideProps(overrides, "Useralt")}
+      {...rest}
     >
       <View {...getOverrideProps(overrides, "User_alt")}></View>
     </View>

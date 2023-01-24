@@ -6,8 +6,13 @@
 
 import * as React from "react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
-import { FlexProps } from "@aws-amplify/ui-react";
+import { FlexProps, TextProps } from "@aws-amplify/ui-react";
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type TitleFrameComponentOverridesProps = {
+    TitleFrameComponent?: PrimitiveOverrideProps<FlexProps>;
+    "Menu\nName"?: PrimitiveOverrideProps<TextProps>;
+} & EscapeHatchProps;
 export declare type TitleFrameComponentProps = React.PropsWithChildren<Partial<FlexProps> & {
-    overrides?: EscapeHatchProps | undefined | null;
+    overrides?: TitleFrameComponentOverridesProps | undefined | null;
 }>;
 export default function TitleFrameComponent(props: TitleFrameComponentProps): React.ReactElement;

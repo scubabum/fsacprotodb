@@ -6,16 +6,10 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { fetchByPath, validateField } from "./utils";
-import { Equipment } from "../models";
+import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { getOverrideProps } from "@aws-amplify/ui-react/internal";
-import {
-  Button,
-  Flex,
-  Grid,
-  SelectField,
-  TextField,
-} from "@aws-amplify/ui-react";
+import { Equipment } from "../models";
+import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
 export default function EquipmentCreateForm(props) {
   const {
@@ -23,27 +17,22 @@ export default function EquipmentCreateForm(props) {
     onSuccess,
     onError,
     onSubmit,
-    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    EquipmentType: {},
-    brand: undefined,
-    model: undefined,
-    serialNumber: undefined,
-    assetNumber: undefined,
-    maintenanceStatus: undefined,
-    lastMaintenanceDate: undefined,
-    tankVisual: undefined,
-    tankHydro: undefined,
-    equipmentEquipmentTypeId: undefined,
+    brand: "",
+    model: "",
+    serialNumber: "",
+    assetNumber: "",
+    maintenanceStatus: "",
+    lastMaintenanceDate: "",
+    tankVisual: "",
+    tankHydro: "",
+    equipmentStatusNotes: "",
   };
-  const [EquipmentType, setEquipmentType] = React.useState(
-    initialValues.EquipmentType
-  );
   const [brand, setBrand] = React.useState(initialValues.brand);
   const [model, setModel] = React.useState(initialValues.model);
   const [serialNumber, setSerialNumber] = React.useState(
@@ -60,11 +49,11 @@ export default function EquipmentCreateForm(props) {
   );
   const [tankVisual, setTankVisual] = React.useState(initialValues.tankVisual);
   const [tankHydro, setTankHydro] = React.useState(initialValues.tankHydro);
-  const [equipmentEquipmentTypeId, setEquipmentEquipmentTypeId] =
-    React.useState(initialValues.equipmentEquipmentTypeId);
+  const [equipmentStatusNotes, setEquipmentStatusNotes] = React.useState(
+    initialValues.equipmentStatusNotes
+  );
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setEquipmentType(initialValues.EquipmentType);
     setBrand(initialValues.brand);
     setModel(initialValues.model);
     setSerialNumber(initialValues.serialNumber);
@@ -73,11 +62,10 @@ export default function EquipmentCreateForm(props) {
     setLastMaintenanceDate(initialValues.lastMaintenanceDate);
     setTankVisual(initialValues.tankVisual);
     setTankHydro(initialValues.tankHydro);
-    setEquipmentEquipmentTypeId(initialValues.equipmentEquipmentTypeId);
+    setEquipmentStatusNotes(initialValues.equipmentStatusNotes);
     setErrors({});
   };
   const validations = {
-    EquipmentType: [],
     brand: [],
     model: [],
     serialNumber: [],
@@ -86,9 +74,16 @@ export default function EquipmentCreateForm(props) {
     lastMaintenanceDate: [],
     tankVisual: [],
     tankHydro: [],
-    equipmentEquipmentTypeId: [],
+    equipmentStatusNotes: [],
   };
-  const runValidationTasks = async (fieldName, value) => {
+  const runValidationTasks = async (
+    fieldName,
+    currentValue,
+    getDisplayValue
+  ) => {
+    const value = getDisplayValue
+      ? getDisplayValue(currentValue)
+      : currentValue;
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -106,7 +101,6 @@ export default function EquipmentCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          EquipmentType,
           brand,
           model,
           serialNumber,
@@ -115,7 +109,7 @@ export default function EquipmentCreateForm(props) {
           lastMaintenanceDate,
           tankVisual,
           tankHydro,
-          equipmentEquipmentTypeId,
+          equipmentStatusNotes,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -140,6 +134,11 @@ export default function EquipmentCreateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
+          Object.entries(modelFields).forEach(([key, value]) => {
+            if (typeof value === "string" && value.trim() === "") {
+              modelFields[key] = undefined;
+            }
+          });
           await DataStore.save(new Equipment(modelFields));
           if (onSuccess) {
             onSuccess(modelFields);
@@ -153,51 +152,18 @@ export default function EquipmentCreateForm(props) {
           }
         }
       }}
-      {...rest}
       {...getOverrideProps(overrides, "EquipmentCreateForm")}
+      {...rest}
     >
-      <SelectField
-        label="Equipment type"
-        placeholder="Please select an option"
-        isDisabled={false}
-        value={EquipmentType}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              EquipmentType: value,
-              brand,
-              model,
-              serialNumber,
-              assetNumber,
-              maintenanceStatus,
-              lastMaintenanceDate,
-              tankVisual,
-              tankHydro,
-              equipmentEquipmentTypeId,
-            };
-            const result = onChange(modelFields);
-            value = result?.EquipmentType ?? value;
-          }
-          if (errors.EquipmentType?.hasError) {
-            runValidationTasks("EquipmentType", value);
-          }
-          setEquipmentType(value);
-        }}
-        onBlur={() => runValidationTasks("EquipmentType", EquipmentType)}
-        errorMessage={errors.EquipmentType?.errorMessage}
-        hasError={errors.EquipmentType?.hasError}
-        {...getOverrideProps(overrides, "EquipmentType")}
-      ></SelectField>
       <TextField
         label="Brand"
         isRequired={false}
         isReadOnly={false}
+        value={brand}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand: value,
               model,
               serialNumber,
@@ -206,7 +172,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.brand ?? value;
@@ -225,11 +191,11 @@ export default function EquipmentCreateForm(props) {
         label="Model"
         isRequired={false}
         isReadOnly={false}
+        value={model}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model: value,
               serialNumber,
@@ -238,7 +204,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.model ?? value;
@@ -257,11 +223,11 @@ export default function EquipmentCreateForm(props) {
         label="Serial number"
         isRequired={false}
         isReadOnly={false}
+        value={serialNumber}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber: value,
@@ -270,7 +236,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.serialNumber ?? value;
@@ -289,11 +255,11 @@ export default function EquipmentCreateForm(props) {
         label="Asset number"
         isRequired={false}
         isReadOnly={false}
+        value={assetNumber}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber,
@@ -302,7 +268,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.assetNumber ?? value;
@@ -321,11 +287,11 @@ export default function EquipmentCreateForm(props) {
         label="Maintenance status"
         isRequired={false}
         isReadOnly={false}
+        value={maintenanceStatus}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber,
@@ -334,7 +300,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.maintenanceStatus ?? value;
@@ -356,11 +322,11 @@ export default function EquipmentCreateForm(props) {
         isRequired={false}
         isReadOnly={false}
         type="date"
+        value={lastMaintenanceDate}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber,
@@ -369,7 +335,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate: value,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.lastMaintenanceDate ?? value;
@@ -391,11 +357,11 @@ export default function EquipmentCreateForm(props) {
         isRequired={false}
         isReadOnly={false}
         type="date"
+        value={tankVisual}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber,
@@ -404,7 +370,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual: value,
               tankHydro,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.tankVisual ?? value;
@@ -424,11 +390,11 @@ export default function EquipmentCreateForm(props) {
         isRequired={false}
         isReadOnly={false}
         type="date"
+        value={tankHydro}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber,
@@ -437,7 +403,7 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro: value,
-              equipmentEquipmentTypeId,
+              equipmentStatusNotes,
             };
             const result = onChange(modelFields);
             value = result?.tankHydro ?? value;
@@ -453,14 +419,14 @@ export default function EquipmentCreateForm(props) {
         {...getOverrideProps(overrides, "tankHydro")}
       ></TextField>
       <TextField
-        label="Equipment equipment type id"
+        label="Equipment status notes"
         isRequired={false}
         isReadOnly={false}
+        value={equipmentStatusNotes}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              EquipmentType,
               brand,
               model,
               serialNumber,
@@ -469,25 +435,22 @@ export default function EquipmentCreateForm(props) {
               lastMaintenanceDate,
               tankVisual,
               tankHydro,
-              equipmentEquipmentTypeId: value,
+              equipmentStatusNotes: value,
             };
             const result = onChange(modelFields);
-            value = result?.equipmentEquipmentTypeId ?? value;
+            value = result?.equipmentStatusNotes ?? value;
           }
-          if (errors.equipmentEquipmentTypeId?.hasError) {
-            runValidationTasks("equipmentEquipmentTypeId", value);
+          if (errors.equipmentStatusNotes?.hasError) {
+            runValidationTasks("equipmentStatusNotes", value);
           }
-          setEquipmentEquipmentTypeId(value);
+          setEquipmentStatusNotes(value);
         }}
         onBlur={() =>
-          runValidationTasks(
-            "equipmentEquipmentTypeId",
-            equipmentEquipmentTypeId
-          )
+          runValidationTasks("equipmentStatusNotes", equipmentStatusNotes)
         }
-        errorMessage={errors.equipmentEquipmentTypeId?.errorMessage}
-        hasError={errors.equipmentEquipmentTypeId?.hasError}
-        {...getOverrideProps(overrides, "equipmentEquipmentTypeId")}
+        errorMessage={errors.equipmentStatusNotes?.errorMessage}
+        hasError={errors.equipmentStatusNotes?.hasError}
+        {...getOverrideProps(overrides, "equipmentStatusNotes")}
       ></TextField>
       <Flex
         justifyContent="space-between"
@@ -496,21 +459,16 @@ export default function EquipmentCreateForm(props) {
         <Button
           children="Clear"
           type="reset"
-          onClick={resetStateValues}
+          onClick={(event) => {
+            event.preventDefault();
+            resetStateValues();
+          }}
           {...getOverrideProps(overrides, "ClearButton")}
         ></Button>
         <Flex
           gap="15px"
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
-          <Button
-            children="Cancel"
-            type="button"
-            onClick={() => {
-              onCancel && onCancel();
-            }}
-            {...getOverrideProps(overrides, "CancelButton")}
-          ></Button>
           <Button
             children="Submit"
             type="submit"

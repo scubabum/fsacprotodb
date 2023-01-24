@@ -21,8 +21,8 @@ export default function MemberCard(props) {
       alignItems="flex-start"
       position="relative"
       padding="0px 0px 0px 0px"
-      {...rest}
       {...getOverrideProps(overrides, "MemberCard")}
+      {...rest}
     >
       <ReviewCard
         display="flex"

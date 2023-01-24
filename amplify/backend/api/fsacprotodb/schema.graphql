@@ -33,6 +33,7 @@ type Equipment @model @auth(rules: [{allow: public}]) {
   memberID: ID @index(name: "byMember")
   tankVisual: AWSDate
   tankHydro: AWSDate
+  equipmentStatusNotes: String
 }
 
 type Certifications @model @auth(rules: [{allow: public}]) {
@@ -54,5 +55,7 @@ type Member @model @auth(rules: [{allow: public}]) {
   membershipDate: AWSDate!
   membershipValid: Boolean!
   isExec: Boolean!
+  memberEmail: String
+  memberPhoneNumber: AWSPhone
 }
  

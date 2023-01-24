@@ -22,8 +22,8 @@ export default function AndroidLargeLogin(props) {
       position="relative"
       padding="0px 0px 0px 0px"
       backgroundColor="rgba(255,255,255,1)"
-      {...rest}
       {...getOverrideProps(overrides, "AndroidLargeLogin")}
+      {...rest}
     >
       <Flex {...getOverrideProps(overrides, "TitleFrame Component")}></Flex>
       <Flex {...getOverrideProps(overrides, "NavigationFrame")}></Flex>

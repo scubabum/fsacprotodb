@@ -66,6 +66,7 @@ type EagerEquipment = {
   readonly memberID?: string | null;
   readonly tankVisual?: string | null;
   readonly tankHydro?: string | null;
+  readonly equipmentStatusNotes?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly equipmentEquipmentTypeId?: string | null;
@@ -87,6 +88,7 @@ type LazyEquipment = {
   readonly memberID?: string | null;
   readonly tankVisual?: string | null;
   readonly tankHydro?: string | null;
+  readonly equipmentStatusNotes?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly equipmentEquipmentTypeId?: string | null;
@@ -148,6 +150,8 @@ type EagerMember = {
   readonly membershipDate: string;
   readonly membershipValid: boolean;
   readonly isExec: boolean;
+  readonly memberEmail?: string | null;
+  readonly memberPhoneNumber?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }
@@ -166,6 +170,8 @@ type LazyMember = {
   readonly membershipDate: string;
   readonly membershipValid: boolean;
   readonly isExec: boolean;
+  readonly memberEmail?: string | null;
+  readonly memberPhoneNumber?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
 }

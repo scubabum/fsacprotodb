@@ -7,7 +7,12 @@
 import * as React from "react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { ViewProps } from "@aws-amplify/ui-react";
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type UseraltOverridesProps = {
+    Useralt?: PrimitiveOverrideProps<ViewProps>;
+    User_alt?: PrimitiveOverrideProps<ViewProps>;
+} & EscapeHatchProps;
 export declare type UseraltProps = React.PropsWithChildren<Partial<ViewProps> & {
-    overrides?: EscapeHatchProps | undefined | null;
+    overrides?: UseraltOverridesProps | undefined | null;
 }>;
 export default function Useralt(props: UseraltProps): React.ReactElement;

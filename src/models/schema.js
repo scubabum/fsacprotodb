@@ -164,6 +164,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "equipmentStatusNotes": {
+                    "name": "equipmentStatusNotes",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -406,6 +413,20 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "memberEmail": {
+                    "name": "memberEmail",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "memberPhoneNumber": {
+                    "name": "memberPhoneNumber",
+                    "isArray": false,
+                    "type": "AWSPhone",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -474,6 +495,6 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "codegenVersion": "3.3.2",
-    "version": "f21cbbf95d5717afe420f6cf78f864c4"
+    "codegenVersion": "3.3.5",
+    "version": "aa8328e5d926894d0441735c64167ebc"
 };

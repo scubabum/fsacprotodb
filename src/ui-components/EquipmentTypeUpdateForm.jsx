@@ -6,33 +6,34 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { fetchByPath, validateField } from "./utils";
-import { EquipmentType } from "../models";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { EquipmentType } from "../models";
+import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
 export default function EquipmentTypeUpdateForm(props) {
   const {
-    id,
+    id: idProp,
     equipmentType,
     onSuccess,
     onError,
     onSubmit,
-    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    equipmentType: undefined,
+    equipmentType: "",
   };
   const [equipmentType, setEquipmentType] = React.useState(
     initialValues.equipmentType
   );
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    const cleanValues = { ...initialValues, ...equipmentTypeRecord };
+    const cleanValues = equipmentTypeRecord
+      ? { ...initialValues, ...equipmentTypeRecord }
+      : initialValues;
     setEquipmentType(cleanValues.equipmentType);
     setErrors({});
   };
@@ -40,18 +41,25 @@ export default function EquipmentTypeUpdateForm(props) {
     React.useState(equipmentType);
   React.useEffect(() => {
     const queryData = async () => {
-      const record = id
-        ? await DataStore.query(EquipmentType, id)
+      const record = idProp
+        ? await DataStore.query(EquipmentType, idProp)
         : equipmentType;
       setEquipmentTypeRecord(record);
     };
     queryData();
-  }, [id, equipmentType]);
+  }, [idProp, equipmentType]);
   React.useEffect(resetStateValues, [equipmentTypeRecord]);
   const validations = {
     equipmentType: [{ type: "Required" }],
   };
-  const runValidationTasks = async (fieldName, value) => {
+  const runValidationTasks = async (
+    fieldName,
+    currentValue,
+    getDisplayValue
+  ) => {
+    const value = getDisplayValue
+      ? getDisplayValue(currentValue)
+      : currentValue;
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -94,6 +102,11 @@ export default function EquipmentTypeUpdateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
+          Object.entries(modelFields).forEach(([key, value]) => {
+            if (typeof value === "string" && value.trim() === "") {
+              modelFields[key] = undefined;
+            }
+          });
           await DataStore.save(
             EquipmentType.copyOf(equipmentTypeRecord, (updated) => {
               Object.assign(updated, modelFields);
@@ -108,14 +121,14 @@ export default function EquipmentTypeUpdateForm(props) {
           }
         }
       }}
-      {...rest}
       {...getOverrideProps(overrides, "EquipmentTypeUpdateForm")}
+      {...rest}
     >
       <TextField
         label="Equipment type"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={equipmentType}
+        value={equipmentType}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -142,7 +155,11 @@ export default function EquipmentTypeUpdateForm(props) {
         <Button
           children="Reset"
           type="reset"
-          onClick={resetStateValues}
+          onClick={(event) => {
+            event.preventDefault();
+            resetStateValues();
+          }}
+          isDisabled={!(idProp || equipmentType)}
           {...getOverrideProps(overrides, "ResetButton")}
         ></Button>
         <Flex
@@ -150,18 +167,13 @@ export default function EquipmentTypeUpdateForm(props) {
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
           <Button
-            children="Cancel"
-            type="button"
-            onClick={() => {
-              onCancel && onCancel();
-            }}
-            {...getOverrideProps(overrides, "CancelButton")}
-          ></Button>
-          <Button
             children="Submit"
             type="submit"
             variation="primary"
-            isDisabled={Object.values(errors).some((e) => e?.hasError)}
+            isDisabled={
+              !(idProp || equipmentType) ||
+              Object.values(errors).some((e) => e?.hasError)
+            }
             {...getOverrideProps(overrides, "SubmitButton")}
           ></Button>
         </Flex>

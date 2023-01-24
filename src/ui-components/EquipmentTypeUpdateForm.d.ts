@@ -5,9 +5,9 @@
  **************************************************************************/
 
 import * as React from "react";
-import { EquipmentType } from "../models";
-import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+import { EquipmentType } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
@@ -19,10 +19,10 @@ export declare type EquipmentTypeUpdateFormInputValues = {
 export declare type EquipmentTypeUpdateFormValidationValues = {
     equipmentType?: ValidationFunction<string>;
 };
-export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type EquipmentTypeUpdateFormOverridesProps = {
-    EquipmentTypeUpdateFormGrid?: FormProps<GridProps>;
-    equipmentType?: FormProps<TextFieldProps>;
+    EquipmentTypeUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
+    equipmentType?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type EquipmentTypeUpdateFormProps = React.PropsWithChildren<{
     overrides?: EquipmentTypeUpdateFormOverridesProps | undefined | null;
@@ -32,7 +32,6 @@ export declare type EquipmentTypeUpdateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: EquipmentTypeUpdateFormInputValues) => EquipmentTypeUpdateFormInputValues;
     onSuccess?: (fields: EquipmentTypeUpdateFormInputValues) => void;
     onError?: (fields: EquipmentTypeUpdateFormInputValues, errorMessage: string) => void;
-    onCancel?: () => void;
     onChange?: (fields: EquipmentTypeUpdateFormInputValues) => EquipmentTypeUpdateFormInputValues;
     onValidate?: EquipmentTypeUpdateFormValidationValues;
 } & React.CSSProperties>;

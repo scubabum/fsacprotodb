@@ -5,9 +5,9 @@
  **************************************************************************/
 
 import * as React from "react";
-import { Member } from "../models";
-import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { GridProps, SelectFieldProps, SwitchFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+import { Member } from "../models";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
@@ -20,6 +20,8 @@ export declare type MemberUpdateFormInputValues = {
     membershipDate?: string;
     membershipValid?: boolean;
     isExec?: boolean;
+    memberEmail?: string;
+    memberPhoneNumber?: string;
 };
 export declare type MemberUpdateFormValidationValues = {
     firstName?: ValidationFunction<string>;
@@ -28,16 +30,20 @@ export declare type MemberUpdateFormValidationValues = {
     membershipDate?: ValidationFunction<string>;
     membershipValid?: ValidationFunction<boolean>;
     isExec?: ValidationFunction<boolean>;
+    memberEmail?: ValidationFunction<string>;
+    memberPhoneNumber?: ValidationFunction<string>;
 };
-export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type MemberUpdateFormOverridesProps = {
-    MemberUpdateFormGrid?: FormProps<GridProps>;
-    firstName?: FormProps<TextFieldProps>;
-    lastName?: FormProps<TextFieldProps>;
-    membershipStatus?: FormProps<SelectFieldProps>;
-    membershipDate?: FormProps<TextFieldProps>;
-    membershipValid?: FormProps<SwitchFieldProps>;
-    isExec?: FormProps<SwitchFieldProps>;
+    MemberUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
+    firstName?: PrimitiveOverrideProps<TextFieldProps>;
+    lastName?: PrimitiveOverrideProps<TextFieldProps>;
+    membershipStatus?: PrimitiveOverrideProps<SelectFieldProps>;
+    membershipDate?: PrimitiveOverrideProps<TextFieldProps>;
+    membershipValid?: PrimitiveOverrideProps<SwitchFieldProps>;
+    isExec?: PrimitiveOverrideProps<SwitchFieldProps>;
+    memberEmail?: PrimitiveOverrideProps<TextFieldProps>;
+    memberPhoneNumber?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type MemberUpdateFormProps = React.PropsWithChildren<{
     overrides?: MemberUpdateFormOverridesProps | undefined | null;
@@ -47,7 +53,6 @@ export declare type MemberUpdateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: MemberUpdateFormInputValues) => MemberUpdateFormInputValues;
     onSuccess?: (fields: MemberUpdateFormInputValues) => void;
     onError?: (fields: MemberUpdateFormInputValues, errorMessage: string) => void;
-    onCancel?: () => void;
     onChange?: (fields: MemberUpdateFormInputValues) => MemberUpdateFormInputValues;
     onValidate?: MemberUpdateFormValidationValues;
 } & React.CSSProperties>;

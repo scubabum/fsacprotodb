@@ -21,8 +21,8 @@ export default function NavBar(props) {
       position="relative"
       padding="28px 20px 28px 20px"
       backgroundColor="rgba(255,255,255,1)"
-      {...rest}
       {...getOverrideProps(overrides, "NavBar")}
+      {...rest}
     >
       <Image
         width="69px"

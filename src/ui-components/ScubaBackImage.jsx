@@ -20,8 +20,8 @@ export default function ScubaBackImage(props) {
       justifyContent="unset"
       position="relative"
       padding="0px 0px 0px 0px"
-      {...rest}
       {...getOverrideProps(overrides, "ScubaBackImage")}
+      {...rest}
     >
       <Image
         width="100%"

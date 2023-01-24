@@ -20,8 +20,8 @@ export default function TitleFrameComponent(props) {
       alignItems="flex-start"
       position="relative"
       padding="10px 11px 10px 11px"
-      {...rest}
       {...getOverrideProps(overrides, "TitleFrameComponent")}
+      {...rest}
     >
       <Text
         fontFamily="Inter"

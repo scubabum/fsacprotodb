@@ -6,8 +6,13 @@
 
 import * as React from "react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
-import { ViewProps } from "@aws-amplify/ui-react";
+import { ImageProps, ViewProps } from "@aws-amplify/ui-react";
+export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type FSACLogoOverridesProps = {
+    FSACLogo?: PrimitiveOverrideProps<ViewProps>;
+    "image 4"?: PrimitiveOverrideProps<ImageProps>;
+} & EscapeHatchProps;
 export declare type FSACLogoProps = React.PropsWithChildren<Partial<ViewProps> & {
-    overrides?: EscapeHatchProps | undefined | null;
+    overrides?: FSACLogoOverridesProps | undefined | null;
 }>;
 export default function FSACLogo(props: FSACLogoProps): React.ReactElement;

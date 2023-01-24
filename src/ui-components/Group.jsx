@@ -20,8 +20,8 @@ export default function Group(props) {
       justifyContent="unset"
       position="relative"
       padding="0px 0px 0px 0px"
-      {...rest}
       {...getOverrideProps(overrides, "Group")}
+      {...rest}
     >
       <View {...getOverrideProps(overrides, "Group36663883")}></View>
     </View>

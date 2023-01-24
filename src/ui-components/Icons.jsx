@@ -21,8 +21,8 @@ export default function Icons(props) {
       justifyContent="unset"
       position="relative"
       padding="0px 0px 0px 0px"
-      {...rest}
       {...getOverrideProps(overrides, "Icons")}
+      {...rest}
     >
       <IconProfile
         width="46px"

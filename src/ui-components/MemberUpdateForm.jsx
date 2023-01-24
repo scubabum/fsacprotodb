@@ -6,9 +6,6 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { fetchByPath, validateField } from "./utils";
-import { Member } from "../models";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
 import {
   Button,
   Flex,
@@ -17,27 +14,31 @@ import {
   SwitchField,
   TextField,
 } from "@aws-amplify/ui-react";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { Member } from "../models";
+import { fetchByPath, validateField } from "./utils";
 import { DataStore } from "aws-amplify";
 export default function MemberUpdateForm(props) {
   const {
-    id,
+    id: idProp,
     member,
     onSuccess,
     onError,
     onSubmit,
-    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    firstName: undefined,
-    lastName: undefined,
+    firstName: "",
+    lastName: "",
     membershipStatus: undefined,
-    membershipDate: undefined,
+    membershipDate: "",
     membershipValid: false,
     isExec: false,
+    memberEmail: "",
+    memberPhoneNumber: "",
   };
   const [firstName, setFirstName] = React.useState(initialValues.firstName);
   const [lastName, setLastName] = React.useState(initialValues.lastName);
@@ -51,25 +52,35 @@ export default function MemberUpdateForm(props) {
     initialValues.membershipValid
   );
   const [isExec, setIsExec] = React.useState(initialValues.isExec);
+  const [memberEmail, setMemberEmail] = React.useState(
+    initialValues.memberEmail
+  );
+  const [memberPhoneNumber, setMemberPhoneNumber] = React.useState(
+    initialValues.memberPhoneNumber
+  );
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    const cleanValues = { ...initialValues, ...memberRecord };
+    const cleanValues = memberRecord
+      ? { ...initialValues, ...memberRecord }
+      : initialValues;
     setFirstName(cleanValues.firstName);
     setLastName(cleanValues.lastName);
     setMembershipStatus(cleanValues.membershipStatus);
     setMembershipDate(cleanValues.membershipDate);
     setMembershipValid(cleanValues.membershipValid);
     setIsExec(cleanValues.isExec);
+    setMemberEmail(cleanValues.memberEmail);
+    setMemberPhoneNumber(cleanValues.memberPhoneNumber);
     setErrors({});
   };
   const [memberRecord, setMemberRecord] = React.useState(member);
   React.useEffect(() => {
     const queryData = async () => {
-      const record = id ? await DataStore.query(Member, id) : member;
+      const record = idProp ? await DataStore.query(Member, idProp) : member;
       setMemberRecord(record);
     };
     queryData();
-  }, [id, member]);
+  }, [idProp, member]);
   React.useEffect(resetStateValues, [memberRecord]);
   const validations = {
     firstName: [{ type: "Required" }],
@@ -78,8 +89,17 @@ export default function MemberUpdateForm(props) {
     membershipDate: [{ type: "Required" }],
     membershipValid: [{ type: "Required" }],
     isExec: [{ type: "Required" }],
+    memberEmail: [],
+    memberPhoneNumber: [{ type: "Phone" }],
   };
-  const runValidationTasks = async (fieldName, value) => {
+  const runValidationTasks = async (
+    fieldName,
+    currentValue,
+    getDisplayValue
+  ) => {
+    const value = getDisplayValue
+      ? getDisplayValue(currentValue)
+      : currentValue;
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -103,6 +123,8 @@ export default function MemberUpdateForm(props) {
           membershipDate,
           membershipValid,
           isExec,
+          memberEmail,
+          memberPhoneNumber,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -127,6 +149,11 @@ export default function MemberUpdateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
+          Object.entries(modelFields).forEach(([key, value]) => {
+            if (typeof value === "string" && value.trim() === "") {
+              modelFields[key] = undefined;
+            }
+          });
           await DataStore.save(
             Member.copyOf(memberRecord, (updated) => {
               Object.assign(updated, modelFields);
@@ -141,14 +168,14 @@ export default function MemberUpdateForm(props) {
           }
         }
       }}
-      {...rest}
       {...getOverrideProps(overrides, "MemberUpdateForm")}
+      {...rest}
     >
       <TextField
         label="First name"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={firstName}
+        value={firstName}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -159,6 +186,8 @@ export default function MemberUpdateForm(props) {
               membershipDate,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.firstName ?? value;
@@ -177,7 +206,7 @@ export default function MemberUpdateForm(props) {
         label="Last name"
         isRequired={true}
         isReadOnly={false}
-        defaultValue={lastName}
+        value={lastName}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -188,6 +217,8 @@ export default function MemberUpdateForm(props) {
               membershipDate,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.lastName ?? value;
@@ -217,6 +248,8 @@ export default function MemberUpdateForm(props) {
               membershipDate,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.membershipStatus ?? value;
@@ -252,7 +285,7 @@ export default function MemberUpdateForm(props) {
         isRequired={true}
         isReadOnly={false}
         type="date"
-        defaultValue={membershipDate}
+        value={membershipDate}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
@@ -263,6 +296,8 @@ export default function MemberUpdateForm(props) {
               membershipDate: value,
               membershipValid,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.membershipDate ?? value;
@@ -292,6 +327,8 @@ export default function MemberUpdateForm(props) {
               membershipDate,
               membershipValid: value,
               isExec,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.membershipValid ?? value;
@@ -321,6 +358,8 @@ export default function MemberUpdateForm(props) {
               membershipDate,
               membershipValid,
               isExec: value,
+              memberEmail,
+              memberPhoneNumber,
             };
             const result = onChange(modelFields);
             value = result?.isExec ?? value;
@@ -335,6 +374,71 @@ export default function MemberUpdateForm(props) {
         hasError={errors.isExec?.hasError}
         {...getOverrideProps(overrides, "isExec")}
       ></SwitchField>
+      <TextField
+        label="Member email"
+        isRequired={false}
+        isReadOnly={false}
+        value={memberEmail}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              firstName,
+              lastName,
+              membershipStatus,
+              membershipDate,
+              membershipValid,
+              isExec,
+              memberEmail: value,
+              memberPhoneNumber,
+            };
+            const result = onChange(modelFields);
+            value = result?.memberEmail ?? value;
+          }
+          if (errors.memberEmail?.hasError) {
+            runValidationTasks("memberEmail", value);
+          }
+          setMemberEmail(value);
+        }}
+        onBlur={() => runValidationTasks("memberEmail", memberEmail)}
+        errorMessage={errors.memberEmail?.errorMessage}
+        hasError={errors.memberEmail?.hasError}
+        {...getOverrideProps(overrides, "memberEmail")}
+      ></TextField>
+      <TextField
+        label="Member phone number"
+        isRequired={false}
+        isReadOnly={false}
+        type="tel"
+        value={memberPhoneNumber}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              firstName,
+              lastName,
+              membershipStatus,
+              membershipDate,
+              membershipValid,
+              isExec,
+              memberEmail,
+              memberPhoneNumber: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.memberPhoneNumber ?? value;
+          }
+          if (errors.memberPhoneNumber?.hasError) {
+            runValidationTasks("memberPhoneNumber", value);
+          }
+          setMemberPhoneNumber(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("memberPhoneNumber", memberPhoneNumber)
+        }
+        errorMessage={errors.memberPhoneNumber?.errorMessage}
+        hasError={errors.memberPhoneNumber?.hasError}
+        {...getOverrideProps(overrides, "memberPhoneNumber")}
+      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
@@ -342,7 +446,11 @@ export default function MemberUpdateForm(props) {
         <Button
           children="Reset"
           type="reset"
-          onClick={resetStateValues}
+          onClick={(event) => {
+            event.preventDefault();
+            resetStateValues();
+          }}
+          isDisabled={!(idProp || member)}
           {...getOverrideProps(overrides, "ResetButton")}
         ></Button>
         <Flex
@@ -350,18 +458,13 @@ export default function MemberUpdateForm(props) {
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
           <Button
-            children="Cancel"
-            type="button"
-            onClick={() => {
-              onCancel && onCancel();
-            }}
-            {...getOverrideProps(overrides, "CancelButton")}
-          ></Button>
-          <Button
             children="Submit"
             type="submit"
             variation="primary"
-            isDisabled={Object.values(errors).some((e) => e?.hasError)}
+            isDisabled={
+              !(idProp || member) ||
+              Object.values(errors).some((e) => e?.hasError)
+            }
             {...getOverrideProps(overrides, "SubmitButton")}
           ></Button>
         </Flex>

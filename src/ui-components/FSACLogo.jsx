@@ -20,8 +20,8 @@ export default function FSACLogo(props) {
       justifyContent="unset"
       position="relative"
       padding="0px 0px 0px 0px"
-      {...rest}
       {...getOverrideProps(overrides, "FSACLogo")}
+      {...rest}
     >
       <Image
         width="100%"

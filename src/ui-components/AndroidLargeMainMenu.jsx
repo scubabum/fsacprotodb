@@ -25,8 +25,8 @@ export default function AndroidLargeMainMenu(props) {
       position="relative"
       padding="0px 0px 0px 0px"
       backgroundColor="rgba(255,255,255,1)"
-      {...rest}
       {...getOverrideProps(overrides, "AndroidLargeMainMenu")}
+      {...rest}
     >
       <Image
         width="360px"
